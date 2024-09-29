@@ -1,43 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A personal budget app that helps you manage your income, track expenses, and plan for financial goals.">
+  <title>Personal Budget - Manage Your Expenses</title>
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+  <!-- Axios and Chart.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  </body>
+<body>
+  <!-- Header with role attribute for improved accessibility -->
+  <header role="banner">
+    <h1>Personal Budget App</h1>
+    <h2>Track Your Income and Expenses</h2>
+  </header>
+
+  <!-- Navigation with role attribute and aria-label for screen readers -->
+  <nav role="navigation" aria-label="Main navigation">
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main content area with role attribute -->
+  <main role="main">
+    <!-- Section 1: Welcome Message -->
+    <section id="home">
+      <h3>Welcome to the Personal Budget App</h3>
+      <p>Manage your finances effectively with our easy-to-use budget tracker.</p>
+    </section>
+
+    <!-- Section 2: Features of the App -->
+    <section id="features">
+      <h3>Features</h3>
+      <ul>
+        <li>Track income and expenses</li>
+        <li>Set financial goals</li>
+        <li>Generate reports</li>
+      </ul>
+    </section>
+
+    <!-- Section 3: Contact Form with improved accessibility features -->
+    <section id="contact">
+      <h3>Contact Us</h3>
+      <form action="/submit" method="POST">
+        <label for="name">Your Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter your name" aria-required="true">
+
+        <label for="email">Your Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" aria-required="true">
+
+        <label for="message">Your Message</label>
+        <textarea id="message" name="message" placeholder="Enter your message" aria-required="true"></textarea>
+
+        <button type="submit" aria-label="Submit your contact form">Submit</button>
+      </form>
+    </section>
+
+    <!-- Section for displaying the Pie chart using Chart.js -->
+    <div class="text box">
+      <h1>Budget Chart (Chart.js)</h1>
+      <canvas id="myChart" width="200" height="200"></canvas>
+    </div>
+
+    <!-- Section for displaying the D3.js chart -->
+    <div id="d3Chart">
+      <h1>Budget Chart (D3.js)</h1>
+    </div>
+  </main>
+
+  <!-- Footer with role attribute -->
+  <footer role="contentinfo">
+    <p>&copy; 2024 Personal Budget App. All rights reserved.</p>
+  </footer>
+
+  <!-- Script for generating the charts and loading data -->
+  <script>
+    var data = {
+      datasets: [{
+        data: [], // To be populated dynamically
+        backgroundColor: ['#ffcd56', '#ff6384', '#36a2eb', '#fd6b19', '#4bc0c0', '#9966ff', '#c9cbcf'],
+      }],
+      labels: [] // To be populated dynamically
+    };
+
+    // Function to create the Chart.js chart
+    function createChart() {
+      var ctx = document.getElementById("myChart").getContext("2d");
+      new Chart(ctx, {
+        type: 'pie',
+        data: data
+      });
+    }
+
+    // Function to create the D3.js chart
+    function createD3Chart(budgetData) {
+      const width = 400;
+      const height = 400;
+      const radius = Math.min(width, height) / 2;
+
+      const svg = d3.select("#d3Chart")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+      const color = d3.scaleOrdinal()
+        .domain(budgetData.map(d => d.title))
+        .range(d3.schemeCategory10);
+
+      const pie = d3.pie()
+        .value(d => d.budget);
+
+      const arc = d3.arc()
+        .innerRadius(0)
+        .outerRadius(radius);
+
+      const arcs = svg.selectAll("arc")
+        .data(pie(budgetData))
+        .enter()
+        .append("g")
+        .attr("class", "arc");
+
+      arcs.append("path")
+        .attr("d", arc)
+        .attr("fill", d => color(d.data.title));
+
+      arcs.append("text")
+        .attr("transform", d => `translate(${arc.centroid(d)})`)
+        .attr("text-anchor", "middle")
+        .text(d => d.data.title);
+    }
+
+    // Function to get budget data from the server
+    function getBudget() {
+      axios.get('/budget')
+        .then(function(res) {
+          console.log(res.data);  // For debugging purposes
+
+          // Populate Chart.js
+          for (var i = 0; i < res.data.myBudget.length; i++) {
+            data.datasets[0].data.push(res.data.myBudget[i].budget);
+            data.labels.push(res.data.myBudget[i].title);
+          }
+          createChart();  // Create the Chart.js chart
+
+          // Populate D3JS
+          createD3Chart(res.data.myBudget);  // Create the D3.js chart
+        })
+        .catch(function(error) {
+          console.error('Error fetching budget data:', error);
+        });
+    }
+
+    // Call the getBudget function on page load
+    getBudget();
+  </script>
+</body>
+
 </html>
