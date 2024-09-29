@@ -71,6 +71,8 @@ const ChartComponent = () => {
 
   // Function to create the D3.js chart
   const createD3Chart = (data) => {
+    console.log("Creating D3.js chart with data:", data);
+
     const width = 400;
     const height = 400;
     const radius = Math.min(width, height) / 2;
@@ -84,6 +86,8 @@ const ChartComponent = () => {
       .attr('height', height)
       .append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+    console.log("SVG created successfully");
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -102,12 +106,17 @@ const ChartComponent = () => {
 
     arcs.append('path')
       .attr('d', arc)
-      .attr('fill', d => color(d.data.title));
+      .attr('fill', d => color(d.data.title))
+      .attr('stroke', '#000')  // Add a black border to the arcs for better visibility
+      .attr('stroke-width', 1);
 
     arcs.append('text')
       .attr('transform', d => `translate(${arc.centroid(d)})`)
       .attr('text-anchor', 'middle')
+      .style('fill', '#000')  // Ensure text is black and visible
       .text(d => d.data.title);
+
+    console.log("D3.js chart created successfully");
   };
 
   return (
