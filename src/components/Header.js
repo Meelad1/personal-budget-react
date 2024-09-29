@@ -1,4 +1,6 @@
 // src/components/Header.js
+import './Header.scss';
+
 import React from 'react';
 
 const Header = () => {

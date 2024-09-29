@@ -1,4 +1,5 @@
 // src/components/Home.js
+import './Home.scss';
 import React from 'react';
 
 const Home = () => {

@@ -1,4 +1,5 @@
 // src/components/Contact.js
+import './Contact.scss';
 import React from 'react';
 
 const Contact = () => {
